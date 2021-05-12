@@ -62,6 +62,7 @@ func (p *Root) onInputChanged(ctx app.Context, e app.Event) {
 	p.Update()
 }
 
+// onButtonClicked evemt will be triggered if button has been clicked
 func (p *Root) onButtonClicked(ctx app.Context, e app.Event) {
 	p.FormData = ""
 	app.Logf("onButtonClicked(): FormData variable cleared.")
