@@ -1,0 +1,6 @@
+*.exe
+*.log
+*.test
+/bin/*
+/web/*.wasm
+
