@@ -1,46 +1,38 @@
 package page
 
 import (
-	"github.com/maxence-charriere/go-app/v8/pkg/app"
+	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
-// root stores the current displayed page and is the main navbar navigation
+// Root stores the current displayed page and is the main navbar navigation
 type Root struct {
 	app.Compo
 
 	FormData string // input form property value
-	initDone bool   // init was done
-}
-
-// init initializes the root page
-func (p *Root) init() {
-	if p.initDone {
-		return
-	}
-	p.FormData = ""
-	p.initDone = true
 }
 
 // Render will render the main navigation page
 func (p *Root) Render() app.UI {
 	app.Log("Render(): Root page rendered.")
-	p.init()
-	return app.Body().Class("has-navbar-fixed-top").Body(
+	return app.Body().Body(
 		app.Div().Body(
 			app.Div().
-				Text("Example shows a go-app bug clearing an input field."),
+				Text("Example shows a go-app workaround clearing an input field 'value' property."),
 			app.Div().
-				Text("Text entered into input field is stored inside components exported 'FormData' variable using input fields OnChanged() event."),
+				Text("Text entered into input field is stored inside components exported 'FormData' variable using input fields OnChanged() event and reading DOM node 'value' property."),
 			app.Div().
-				Text("However if another event like OnClick() from a button is clearing the exported 'FormData' variable bound to input field and updating the component the text inside the input field is not cleared."),
+				Text("However if another event like OnClick() from a button is clearing the exported 'FormData' variable bound to input field DOM node 'value' property and updating the component the 'value' property inside the input field DOM node is not cleared."),
 			app.Div().
 				Body(
 					app.Br(),
+					app.Text("Plain text (rendered by go-app): "+p.FormData),
+					app.Br(),
 					app.Label().
-						Text("Input field"),
+						Text("Input field with DOM node 'value' property"),
 					app.Div().
 						Body(
 							app.Input().
+								ID("formdata").
 								Value(p.FormData).
 								OnChange(p.onInputChanged),
 						),
@@ -57,19 +49,17 @@ func (p *Root) Render() app.UI {
 
 // onInputChanged event is triggered when input field content has changed
 func (p *Root) onInputChanged(ctx app.Context, e app.Event) {
-	p.FormData = ctx.JSSrc.Get("value").String()
+	p.FormData = ctx.JSSrc().Get("value").String()
 	app.Logf("onInputChanged(): FormData variable new value => '%s'.", p.FormData)
-	p.Update()
 }
 
 // onButtonClicked evemt will be triggered if button has been clicked
 func (p *Root) onButtonClicked(ctx app.Context, e app.Event) {
 	p.FormData = ""
 	app.Logf("onButtonClicked(): FormData variable cleared.")
-	p.Update()
-}
 
-// OnMount will mount the root page
-func (p *Root) OnMount(ctx app.Context) {
-	app.Log("OnMount(): Root page mounted.")
+	// Workaround: Since "value" is a DOM node property it must be updated manually via DOM JS setter
+	// go-app renders text content (which is not a node property and bound to DOM) correctly
+	// but you have to take care if DOM node properties needs to be updated
+	app.Window().GetElementByID("formdata").Set("value", p.FormData)
 }
