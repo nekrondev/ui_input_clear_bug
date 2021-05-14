@@ -18,4 +18,6 @@ As the content of the `FormData` variable had been cleared I would expect that a
 
 The workaround (or in this case works as expected) is to clear the inputs fields DOM node `value` property manually at the `OnClick()` handler function.
 
+**UPDATE: Maxence has fixed the issue real quickly so no longer the workaround is needed as from `go get -u -v github.com/maxence-charriere/go-app/v9@919dd2c`.**
+Many Thanks for your fast support!
 

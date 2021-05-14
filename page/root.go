@@ -34,7 +34,7 @@ func (p *Root) Render() app.UI {
 							app.Input().
 								ID("formdata").
 								Value(p.FormData).
-								OnChange(p.onInputChanged),
+								OnChange(p.ValueTo(&p.FormData)),
 						),
 					app.Div().
 						Body(
@@ -47,12 +47,6 @@ func (p *Root) Render() app.UI {
 	)
 }
 
-// onInputChanged event is triggered when input field content has changed
-func (p *Root) onInputChanged(ctx app.Context, e app.Event) {
-	p.FormData = ctx.JSSrc().Get("value").String()
-	app.Logf("onInputChanged(): FormData variable new value => '%s'.", p.FormData)
-}
-
 // onButtonClicked evemt will be triggered if button has been clicked
 func (p *Root) onButtonClicked(ctx app.Context, e app.Event) {
 	p.FormData = ""
@@ -61,5 +55,7 @@ func (p *Root) onButtonClicked(ctx app.Context, e app.Event) {
 	// Workaround: Since "value" is a DOM node property it must be updated manually via DOM JS setter
 	// go-app renders text content (which is not a node property and bound to DOM) correctly
 	// but you have to take care if DOM node properties needs to be updated
-	app.Window().GetElementByID("formdata").Set("value", p.FormData)
+	//app.Window().GetElementByID("formdata").Set("value", p.FormData)
+
+	// NOTE: This issue had been fixed by go get -u -v github.com/maxence-charriere/go-app/v9@919dd2c
 }
