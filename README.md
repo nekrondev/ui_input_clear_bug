@@ -1,23 +1,26 @@
-### Go-App Input Field Value Update ~~Bug~~ ###
-~~This repository is a quick and dirty example on some render / UI update bug I found in Go-App framework.~~
-
-This repository shows a solution to clear input field values that are not automagically updated by go-app.
+### Go-App UI Update Bugs ###
+I found three more issues with UI updates for rendered elements.
 
 ### Details ###
-An input field DOM node `value` property bound to some public (exported) component structure variable is not updating the UI text if internally modified and component is rendered.
 
-In this example a input field text DOM node `value` property is bound to component exported `FormData` variable. The `FormData` variable is updated via input fields `OnChanged()` event. 
+1. Input fields that are checkboxes are not updated if struct value is reset to unchecked or vice versa
 
-A button is bound to `OnClick()` event that is clearing the `FormData` variable and calling the component's `update()` function.
+- Tick checkbox
+- Struct value `p.BoxEnabled` is set to true, checkbox shows ticked off square in UI
+- Press reset form buton. The internal `p.BoxEnabled` value is set back to `false`.
+- Checkbox UI square is still ticked off even if internal struct value is `false`.
 
-As the content of the `FormData` variable had been cleared I would expect that after rendering the input field the text should be cleared on the UI, too. However the previous entered text stays visible and is not updated in the UI because DOM node `value` property of the input field is not updated by rendering.
+2. TextArea text field is not updated if struct value is cleared
 
-~~This bug prevents UIs that must clear input forms for entering new data.~~
+- Write some text into textarea widget
+- Struct value `p.TextArea` is updated with textarea value on change
+- Press reset form button. The internal `p.TextArea` value is cleared
+- TextArea UI still contains text
 
-~~A workaround might be to separate the input fields as dedicated components and re-initializing the input field components in case the form must be cleared but that is cubersome if you only have a simple form.~~
+3. Selector option not reset
 
-The workaround (or in this case works as expected) is to clear the inputs fields DOM node `value` property manually at the `OnClick()` handler function.
-
-**UPDATE: Maxence has fixed the issue real quickly so no longer the workaround is needed as from `go get -u -v github.com/maxence-charriere/go-app/v9@919dd2c`.**
-Many Thanks for your fast support!
+- Select `Bar` value from selector
+- Struct value `p.Selector` is updated with selected value `Bar`
+- Press reset form button. The internal `p.Selector` value is reset to `Foo`.
+- Selector UI still shows `Bar` as selected value
 

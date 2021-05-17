@@ -1,6 +1,8 @@
 package page
 
 import (
+	"fmt"
+
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
@@ -8,7 +10,10 @@ import (
 type Root struct {
 	app.Compo
 
-	FormData string // input form property value
+	FormData   string // input form property value
+	BoxEnabled bool   // checkbox enabled binding
+	TextArea   string // text area text binding
+	Selector   string // currently selected value from selector box
 }
 
 // Render will render the main navigation page
@@ -17,15 +22,18 @@ func (p *Root) Render() app.UI {
 	return app.Body().Body(
 		app.Div().Body(
 			app.Div().
-				Text("Example shows a go-app workaround clearing an input field 'value' property."),
-			app.Div().
-				Text("Text entered into input field is stored inside components exported 'FormData' variable using input fields OnChanged() event and reading DOM node 'value' property."),
-			app.Div().
-				Text("However if another event like OnClick() from a button is clearing the exported 'FormData' variable bound to input field DOM node 'value' property and updating the component the 'value' property inside the input field DOM node is not cleared."),
+				Text("CheckBox and TextArea widgets are not updated if struct bindigs for Checked() and Text() HTMLInput functions change."),
 			app.Div().
 				Body(
 					app.Br(),
-					app.Text("Plain text (rendered by go-app): "+p.FormData),
+					app.Text("Plain text struct value: "+p.FormData),
+					app.Br(),
+					app.Text(fmt.Sprintf("CheckBox struct value: %t", p.BoxEnabled)),
+					app.Br(),
+					app.Text("Textarea text struct value: "+p.TextArea),
+					app.Br(),
+					app.Text("Selector struct value: "+p.Selector),
+					app.Br(),
 					app.Br(),
 					app.Label().
 						Text("Input field with DOM node 'value' property"),
@@ -38,8 +46,52 @@ func (p *Root) Render() app.UI {
 						),
 					app.Div().
 						Body(
+							app.Div().
+								Body(
+									app.Label().
+										Body(
+											app.Input().
+												Type("checkbox").
+												Checked(p.BoxEnabled).
+												OnChange(func(ctx app.Context, e app.Event) { p.BoxEnabled = !p.BoxEnabled }),
+											app.Text(" Enable Checkbox"),
+										),
+								),
+						),
+					app.Div().
+						Body(
+							app.Label().
+								Text("Textbox data"),
+							app.Div().
+								Body(
+									app.Textarea().
+										Text(p.TextArea).
+										OnChange(p.ValueTo(&p.TextArea)),
+								),
+						),
+					app.Div().
+						Body(
+							app.Label().
+								Text("Selector"),
+							app.Div().
+								Body(
+									app.Select().
+										Body(
+											app.Option().
+												Text("Foo").
+												Selected(p.Selector == "Foo"),
+											app.Option().
+												Text("Bar").
+												Selected(p.Selector == "Bar"),
+										).
+										OnChange(p.ValueTo(&p.Selector)),
+								),
+						),
+					app.Br(),
+					app.Div().
+						Body(
 							app.Button().
-								Text("Clear Form").
+								Text("Clear Form, uncheck CheckBox and reset selector struct values").
 								OnClick(p.onButtonClicked),
 						),
 				),
@@ -50,7 +102,10 @@ func (p *Root) Render() app.UI {
 // onButtonClicked evemt will be triggered if button has been clicked
 func (p *Root) onButtonClicked(ctx app.Context, e app.Event) {
 	p.FormData = ""
-	app.Logf("onButtonClicked(): FormData variable cleared.")
+	p.BoxEnabled = false
+	p.TextArea = ""
+	p.Selector = "Foo"
+	app.Logf("onButtonClicked(): FormData struct variables reset.")
 
 	// Workaround: Since "value" is a DOM node property it must be updated manually via DOM JS setter
 	// go-app renders text content (which is not a node property and bound to DOM) correctly
